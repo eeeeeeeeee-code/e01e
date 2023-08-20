@@ -22,7 +22,7 @@
 	暂时只支持linux
 	python版本3.7~3.9
 
-下载后使用：
+下载后使用前运行：
 	chmod +x run.sh
 	./run.sh
 ```
