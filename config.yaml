@@ -1,0 +1,17 @@
+httpx:
+  {
+    httpx-threads: "150", # httpx线程数，默认50
+    httpx-limit: "300", #httpx每秒请求速度，默认150
+    http-filter-code: "302,404" #httpx过滤状态码
+  }
+
+nuclei:
+  {
+    nuclei-threads: "15", # nuclei并发数，默认10
+    nuclei-severity: "medium,high,critical" # nuclei扫描漏洞级别
+  }
+
+subfinder:
+  {
+    subfiner-threads: "15" # subfinder并发数，默认10
+  }
