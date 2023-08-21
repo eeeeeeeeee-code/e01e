@@ -90,7 +90,7 @@ def nuclei():
     try:
         if not args.not_nuclei:
             os.system(
-                f"./tools/nuclei/nuclei -l ./result/url.txt -severity {str(config_yaml['nuclei']['nuclei-severity'])} -stats -o ./result/nuclei.json -t {str(config_yaml['nuclei']['nuclei-threads'])}")
+                f"./tools/nuclei/nuclei -l ./result/url.txt -severity {str(config_yaml['nuclei']['nuclei-severity'])} -stats -o ./result/nuclei.json -c {str(config_yaml['nuclei']['nuclei-threads'])}")
         else:
             print("\n" + "-" * 50 + "使用参数--not-nuclei,跳过nuclei检测" + "-" * 50)
     except Exception as e:
