@@ -1,4 +1,5 @@
 # e01e
+
 ### 1.前言
 
 在这之前我接触到了另一个大哥的https://github.com/Lay0us1/Londly02，但是用的不太尽人意，然后去看了一下代码发现挺简单就是调用，于是自己也想自己搞搞
@@ -10,7 +11,11 @@
 
 这里选择subfinder，看重它速度比较快，然后可以设置多个key、毕竟很多免费key都有限制，这样就比较好，对了，别忘了添加subfinder的key哦，运行一次后就在key位置就在$HOME/.config/subfinder/provider-config.yaml了，可以去参考https://github.com/projectdiscovery/subfinder，或者网上找个文章
 
-待优化：加入路径爆破、代理池、fanger指纹添加和优化等操作，后续更新
+
+
+**待优化：加入路径爆破、代理池、fanger指纹添加和优化等操作，后续更新**
+
+已优化：1.加入拒绝扫描的url列表，支持使用*，但是不要加https://或者http://
 
 
 
@@ -37,17 +42,28 @@ optional arguments:
                         根域名列表文件
   -uf [URL_FILE], --url-file [URL_FILE]
                         指定url列表文件
+  -xf [NOT_FILE], --not-url [NOT_FILE]
+                        指定拒绝不扫描的url列表文件
   --not-xray            不使用xray
   --not-nuclei          不使用nuclei
-  --not-xscan           不使用xscan
   --finger              启用Finger指纹识别
+
 ```
 
 ```
-正常使用：扫描根域名列表，开启Finger指纹识别
-	python3 e01e.py -df do.txt --f --not-xray
+正常使用：扫描根域名列表
+	python3 e01e.py -df do.txt
 不使用xray：
 	python3 e01e.py -df do.txt --f --not-xray
+```
+
+```
+使用注意：
+	-xf指定拒绝扫描url列表，举例：
+		*.cont.test.com
+		1.1.*.test.com
+		test.com
+	支持*，但是不要加https://或者http://
 ```
 
 
