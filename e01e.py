@@ -2,7 +2,9 @@
 import os
 import argparse
 import subprocess
+from yaml import safe_load
 from package.file import remove_urls
+
 
 def argss(args):
     try:
@@ -13,9 +15,11 @@ def argss(args):
         functions = [Finder, nuclei, xary]
 
         if dmain not in "None":
+            os.system("rm -fr ./result/sub.txt")
             subfinder(dmain, "None")
             return True
         elif dmain_file not in "None":
+            os.system("rm -fr ./result/sub.txt")
             subfinder("None", dmain_file)
             return True
         elif url_file:
@@ -38,6 +42,7 @@ def argss(args):
     except Exception as e:
         print(e)
 
+
 def check_command(command):
     try:
         subprocess.run([command, "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
@@ -50,10 +55,10 @@ def subfinder(domain, domain_file):
     try:
         if domain_file in "None":
             os.system(
-                f'./tools/subfinder/subfinder -d {domain} -o ./result/sub.txt')
+                f'./tools/subfinder/subfinder -d {domain} -o ./result/sub.txt -t {str(config_yaml["subfinder"]["subfiner-threads"])}')
         else:
             os.system(
-                f'./tools/subfinder/subfinder -dL {domain_file} -o ./result/sub.txt')
+                f'./tools/subfinder/subfinder -dL {domain_file} -o ./result/sub.txt -t {str(config_yaml["subfinder"]["subfiner-threads"])}')
     except Exception as e:
         print("subfinder bug:", e)
 
@@ -61,11 +66,11 @@ def subfinder(domain, domain_file):
 def httpx(urlfile):
     try:
         if args.not_file:
-            os.system(f"./tools/httpx/httpx -l ./result/sub.txt  -fc 302,404 -o ./result/not_file.txt")
+            os.system(f"./tools/httpx/httpx -l ./result/sub.txt  -fc {str(config_yaml['httpx']['http-filter-code'])} -t {str(config_yaml['httpx']['httpx-threads'])} -rl {str(config_yaml['httpx']['httpx-limit'])} -o ./result/not_file.txt")
         elif args.url_file:
-            os.system(f"./tools/httpx/httpx -l {urlfile} -fc 302,404 -o ./result/url.txt")
+            os.system(f"./tools/httpx/httpx -l {urlfile} -fc {str(config_yaml['httpx']['http-filter-code'])} -t {str(config_yaml['httpx']['httpx-threads'])} -rl {str(config_yaml['httpx']['httpx-limit'])} -o ./result/url.txt")
         else:
-            os.system(f"./tools/httpx/httpx -l ./result/sub.txt -fc 302,404 -o ./result/url.txt")
+            os.system(f"./tools/httpx/httpx -l ./result/sub.txt -fc {str(config_yaml['httpx']['http-filter-code'])} -t {str(config_yaml['httpx']['httpx-threads'])} -rl {str(config_yaml['httpx']['httpx-limit'])} -o ./result/url.txt")
     except Exception as e:
         print("tools_httpx bug:", e)
 
@@ -85,7 +90,7 @@ def nuclei():
     try:
         if not args.not_nuclei:
             os.system(
-                f"./tools/nuclei/nuclei -l ./result/url.txt -severity low,medium,high,critical -stats -o ./result/nuclei.json")
+                f"./tools/nuclei/nuclei -l ./result/url.txt -severity {str(config_yaml['nuclei']['nuclei-severity'])} -stats -o ./result/nuclei.json -t {str(config_yaml['nuclei']['nuclei-threads'])}")
         else:
             print("\n" + "-" * 50 + "使用参数--not-nuclei,跳过nuclei检测" + "-" * 50)
     except Exception as e:
@@ -106,7 +111,8 @@ def Finder():
 
 # 初始化
 def _main():
-    global args
+    global args, config_yaml
+    config_yaml = safe_load(open("./config.yaml"))
     parser = argparse.ArgumentParser(description='File input')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-d', '--domain', dest='domain', nargs='?', type=str, help='单个根域名')
@@ -117,11 +123,10 @@ def _main():
                         help='指定拒绝不扫描的url列表文件')
     parser.add_argument('--not-xray', dest='not_xray', action='store_true', help='不使用xray')
     parser.add_argument('--not-nuclei', dest='not_nuclei', action='store_true', help='不使用nuclei')
-    parser.add_argument('--not-xscan', dest='not_xscan', action='store_true', help='不使用xscan')
     parser.add_argument('--finger', dest='run_finger', action='store_true', help='启用Finger指纹识别')
     args = parser.parse_args()
 
-    functions = [Finder, xary, nuclei]
+    functions = [Finder, nuclei, xary]
     if argss(args):
         httpx(None)
         if args.not_file:
@@ -134,4 +139,3 @@ def _main():
 
 if __name__ == "__main__":
     _main()
-
