@@ -15,3 +15,8 @@ subfinder:
   {
     subfiner-threads: "15" # subfinder并发数，默认10
   }
+
+file:
+  {
+      file-long: "300" # 简单去重，这是行数限制，超过行数限制，会进行询问是否进行去重
+  }
