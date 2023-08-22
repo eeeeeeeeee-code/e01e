@@ -1,9 +1,8 @@
 # coding:utf-8
-import os
 import argparse
 import subprocess
-from yaml import safe_load
 from package.file import remove_urls
+from package.de_weight import *
 
 
 def argss(args):
@@ -15,15 +14,16 @@ def argss(args):
         functions = [Finder, nuclei, xary]
 
         if dmain not in "None":
-            os.system("rm -fr ./result/sub.txt")
+            system("rm -fr ./result/sub.txt")
             subfinder(dmain, "None")
             return True
         elif dmain_file not in "None":
-            os.system("rm -fr ./result/sub.txt")
+            system("rm -fr ./result/sub.txt")
             subfinder("None", dmain_file)
             return True
         elif url_file:
             httpx(str(url_file))
+            de_run(args.url_file)
             if not_file:
                 remove_urls("./result/not_file.txt", str(not_file))
             if not args.run_finger:
@@ -33,9 +33,9 @@ def argss(args):
             return False
         else:
             if check_command("python3"):
-                os.system("python3 e01e.py -h")
+                system("python3 e01e.py -h")
             elif check_command("python"):
-                os.system("python e01e.py -h")
+                system("python e01e.py -h")
             else:
                 print("没有python环境")
             exit()
@@ -54,11 +54,11 @@ def check_command(command):
 def subfinder(domain, domain_file):
     try:
         if domain_file in "None":
-            os.system(
-                f'./tools/subfinder/subfinder -d {domain} -o ./result/sub.txt -t {str(config_yaml["subfinder"]["subfiner-threads"])}')
+            system(
+                f'./tools/subfinder/subfinder -d {domain} -o ./result/sub.txt -t {str(config_yaml["subfinder"]["subfiner-threads"])} -pc /root/.config/subfinder/provider-config2.yaml')
         else:
-            os.system(
-                f'./tools/subfinder/subfinder -dL {domain_file} -o ./result/sub.txt -t {str(config_yaml["subfinder"]["subfiner-threads"])}')
+            system(
+                f'./tools/subfinder/subfinder -dL {domain_file} -o ./result/sub.txt -t {str(config_yaml["subfinder"]["subfiner-threads"])} -pc /root/.config/subfinder/provider-config2.yaml')
     except Exception as e:
         print("subfinder bug:", e)
 
@@ -66,11 +66,14 @@ def subfinder(domain, domain_file):
 def httpx(urlfile):
     try:
         if args.not_file:
-            os.system(f"./tools/httpx/httpx -l ./result/sub.txt  -fc {str(config_yaml['httpx']['http-filter-code'])} -t {str(config_yaml['httpx']['httpx-threads'])} -rl {str(config_yaml['httpx']['httpx-limit'])} -o ./result/not_file.txt")
+            system(
+                f"./tools/httpx/httpx -l ./result/sub.txt  -fc {str(config_yaml['httpx']['http-filter-code'])} -t {str(config_yaml['httpx']['httpx-threads'])} -rl {str(config_yaml['httpx']['httpx-limit'])} -o ./result/not_file.txt")
         elif args.url_file:
-            os.system(f"./tools/httpx/httpx -l {urlfile} -fc {str(config_yaml['httpx']['http-filter-code'])} -t {str(config_yaml['httpx']['httpx-threads'])} -rl {str(config_yaml['httpx']['httpx-limit'])} -o ./result/url.txt")
+            system(
+                f"./tools/httpx/httpx -l {urlfile} -fc {str(config_yaml['httpx']['http-filter-code'])} -t {str(config_yaml['httpx']['httpx-threads'])} -rl {str(config_yaml['httpx']['httpx-limit'])} -o ./result/url.txt")
         else:
-            os.system(f"./tools/httpx/httpx -l ./result/sub.txt -fc {str(config_yaml['httpx']['http-filter-code'])} -t {str(config_yaml['httpx']['httpx-threads'])} -rl {str(config_yaml['httpx']['httpx-limit'])} -o ./result/url.txt")
+            system(
+                f"./tools/httpx/httpx -l ./result/sub.txt -fc {str(config_yaml['httpx']['http-filter-code'])} -t {str(config_yaml['httpx']['httpx-threads'])} -rl {str(config_yaml['httpx']['httpx-limit'])} -o ./result/url.txt")
     except Exception as e:
         print("tools_httpx bug:", e)
 
@@ -78,7 +81,7 @@ def httpx(urlfile):
 def xary():
     try:
         if not args.not_xray:
-            os.system(
+            system(
                 f"./tools/xray/xray_linux_amd64 --config ./tools/xray/config.yaml webscan -url-file ./result/url.txt --html-output ./result/xray.html")
         else:
             print("\n" + "-" * 50 + "使用参数--not-xray,跳过xray检测" + "-" * 50)
@@ -89,7 +92,7 @@ def xary():
 def nuclei():
     try:
         if not args.not_nuclei:
-            os.system(
+            system(
                 f"./tools/nuclei/nuclei -l ./result/url.txt -severity {str(config_yaml['nuclei']['nuclei-severity'])} -stats -o ./result/nuclei.json -c {str(config_yaml['nuclei']['nuclei-threads'])}")
         else:
             print("\n" + "-" * 50 + "使用参数--not-nuclei,跳过nuclei检测" + "-" * 50)
@@ -100,9 +103,9 @@ def nuclei():
 def Finder():
     try:
         if check_command("python3"):
-            os.system(f"python3 ./tools/Finger/Finger.py -f ./result/url.txt -o xlsx")
+            system(f"python3 ./tools/Finger/Finger.py -f ./result/url.txt -o xlsx")
         elif check_command("python"):
-            os.system(f"python ./tools/Finger/Finger.py -f ./result/url.txt -o xlsx")
+            system(f"python ./tools/Finger/Finger.py -f ./result/url.txt -o xlsx")
         else:
             print("没有python环境")
     except Exception as e:
@@ -129,6 +132,7 @@ def _main():
     functions = [Finder, nuclei, xary]
     if argss(args):
         httpx(None)
+        de_run(args.url_file)
         if args.not_file:
             remove_urls("./result/not_file.txt", str(args.not_file))
         if not args.run_finger:
